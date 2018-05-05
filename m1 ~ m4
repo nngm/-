@@ -1,0 +1,156 @@
+#include <bits/stdc++.h>
+#define FOR(N) for(int i = 0; i < N; i++)
+
+#define m4
+
+using namespace std;
+
+#ifdef m1
+int main()
+{
+    char mod[50] = {0, };
+    stack<int> par;
+    queue<int> pr;
+
+    scanf("%s", mod);
+
+    for (int i = 0; i < strlen(mod); i++)
+        if (mod[i] == '(')
+            par.push(i);
+        else if (mod[i] == ')') {
+            if (par.empty())    {
+                printf("not match");
+                return 0;
+            }
+            else {
+                pr.push(par.top());
+                pr.push(i);
+                par.pop();
+            }
+        }
+
+    while (!pr.empty())  {
+        printf("%d ", pr.front());
+        pr.pop();
+        printf("%d\n", pr.front());
+        pr.pop();
+    }
+
+    return 0;
+}
+#endif // m1
+
+#ifdef m2
+int dis(int, int*);
+int main()
+{
+    int n, arr[1000];
+    queue<int> queue;
+
+    cin >> n;
+
+    for(;;) {
+        FOR(n)                      {
+            scanf("%d", arr + i);
+            if (arr[i] == 0)
+                goto there;         }
+
+        queue.push(dis(n, arr));
+    }
+
+    there:
+
+    while(!queue.empty())   {
+        if (queue.front())
+            printf("Yes\n");
+        else
+            printf("No\n");
+        queue.pop();
+    }
+
+    return 0;
+}
+
+int dis(int n, int* arr)
+{
+    int m = n - 1;
+    stack<int> stack;
+
+    while(m >= 0 || !stack.empty())
+        if (stack.empty() || stack.top() != n && m >= 0)
+            stack.push(arr[m--]);
+        else if (stack.top() == n)              {
+            n--;
+            stack.pop();                        }
+        else
+            break;
+
+    if (stack.empty())
+        return 1;
+    else
+        return 0;
+}
+#endif // m2
+
+#ifdef m3
+int main()
+{
+    int n, cnt = 0, hi[80001];
+    stack<int> idx;
+
+    cin >> n;
+
+    for (int i = 0; i < n; i++)
+        scanf("%d", hi + i);
+
+    hi[n] = 1000000001;
+
+    for (int i = 0; i <= n; i++)
+        if (idx.empty() || hi[idx.top()] > hi[i])
+            idx.push(i);
+        else {
+            cnt += i-- - idx.top() - 1;
+            idx.pop();
+        }
+
+    cout << cnt;
+
+    return 0;
+}
+#endif // m3
+
+#ifdef m4
+int main()
+{
+    int n, h[100002], l[100002] = {0, };
+    long long area = 0;
+    stack<int> left, right;
+
+    cin >> n;
+    for (int i = 1; i <= n; i++)
+        scanf("%d", h + i);
+
+    h[0] = h[n + 1] = 0;
+
+    for (int i = 1; i <= n + 1; i++)
+        if (right.empty() || h[right.top()] <= h[i])
+            right.push(i);
+        else                                            {
+            l[right.top()] += i-- - right.top();
+            right.pop();                                }
+
+    for (int i = n; i >= 0; i--)
+        if (left.empty() || h[left.top()] <= h[i])
+            left.push(i);
+        else                                            {
+            l[left.top()] += left.top() - i++ - 1;
+            left.pop();                                 }
+
+    for (int i = 1; i <= n; i++)
+        area = (long long)h[i] * l[i] > area ? (long long)h[i] * l[i] : area;
+
+    cout << area;
+
+    return 0;
+}
+#endif // m4

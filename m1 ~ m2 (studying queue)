@@ -1,0 +1,154 @@
+#include <bits/stdc++.h>
+#define FOR(N) for(int i = 0; i < N; i++)
+
+#define m2
+
+using namespace std;
+
+#ifdef m1
+vector<int> smaller[1000000];
+
+bool dfs(int, int);
+
+int main()
+{
+    int n, m, p, q;
+
+    cin >> n >> m;
+
+    for (int i = 0; i < m; i++) {
+        int a, b;
+        cin >> a >> b;
+        smaller[a].push_back(b);
+    }
+
+    cin >> p >> q;
+
+    if (dfs(p, q))
+        cout << "yes";
+    else if (dfs(q, p))
+        cout << "no";
+    else
+        cout << "unknown";
+
+    return 0;
+}
+
+bool dfs(int n, int k)
+{
+    if (n == k)
+        return true;
+
+    bool tmp = false;
+
+    for (int i = 0; i < smaller[n].size(); i++)
+        tmp |= dfs(smaller[n][i], k);
+
+    return tmp;
+}
+#endif // m1
+
+#ifdef m2
+int arr[1000][1000], chessboard[1000][1000], janggiboard[1000][1000];
+
+struct Coord {
+    int x;
+    int y;
+    int time;
+
+    Coord(int a, int b, int c) {
+        x = a;
+        y = b;
+        time = c;
+    }
+
+    void change(int a, int b) {
+        x = a;
+        y = b;
+    }
+};
+
+int main()
+{
+    int n, k, sx, sy, cnt = 0;
+    queue<Coord> chess;
+    queue<Coord> janggi;
+
+    cin >> n >> k;
+
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++) {
+            scanf("%d", arr[i] + j);
+            if (arr[i][j] == 1)
+                chessboard[i][j] = janggiboard[i][j] = -2;
+            else
+                chessboard[i][j] = janggiboard[i][j] = -1;
+        }
+
+    cin >> sx >> sy;
+
+    sx--;
+    sy--;
+
+    Coord* start = new Coord(sx, sy, 0);
+
+    chess.push(*start);
+    janggi.push(*start);
+
+    while (!chess.empty()) {
+
+        Coord tmp = chess.front();
+        chess.pop();
+
+        if (tmp.x < 0 || tmp.y < 0 || tmp.x >= n || tmp.y >= n || chessboard[tmp.x][tmp.y] != -1 || arr[tmp.x][tmp.y] == 1)
+            continue;
+
+        chessboard[tmp.x][tmp.y] = tmp.time;
+
+        int dx[] = {-2, -1, -1, 1, 1, 2, 2};
+        int dy[] = {1, 2, -2, 2, -2, 1, -1};
+
+        Coord* temp = new Coord(tmp.x - 2, tmp.y - 1, tmp.time + 1);
+        chess.push(*temp);
+        for (int i = 0; i < 7; i++) {
+            temp->change(tmp.x + dx[i], tmp.y + dy[i]);
+            chess.push(*temp);
+        }
+    }
+
+    while (!janggi.empty()) {
+
+        Coord tmp = janggi.front();
+        janggi.pop();
+
+        if (tmp.x < 0 || tmp.y < 0 || tmp.x >= n || tmp.y >= n || janggiboard[tmp.x][tmp.y] != -1 || arr[tmp.x][tmp.y] == 1)
+            continue;
+
+        janggiboard[tmp.x][tmp.y] = tmp.time;
+
+        int dx[] = {-2, -1, -1, 1, 1, 2, 2};
+        int dy[] = {1, 2, -2, 2, -2, 1, -1};
+        int dz[] = {-1, 0, 0, 0, 0, 1, 1};
+        int dw[] = {0, 1, -1, 1, -1, 0, 0};
+
+        Coord* temp = new Coord(tmp.x - 2, tmp.y - 1, tmp.time + 1);
+        if (arr[tmp.x - 1][tmp.y] == 0)
+            janggi.push(*temp);
+
+        for (int i = 0; i < 7; i++) {
+            temp->change(tmp.x + dx[i], tmp.y + dy[i]);
+            if (arr[tmp.x + dz[i]][tmp.y + dw[i]] == 0)
+                janggi.push(*temp);
+        }
+    }
+
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            if (janggiboard[i][j] > chessboard[i][j] || janggiboard[i][j] == -1 && chessboard[i][j] != -1)
+                cnt++;
+
+    cout << cnt;
+
+    return 0;
+}
+#endif // m2

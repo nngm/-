@@ -1,0 +1,146 @@
+#include <bits/stdc++.h>
+#define FOR(N) for(int i = 0; i < N; i++)
+
+#define m3
+
+using namespace std;
+
+#ifdef m1
+int n, start, a, b;
+bool check[11];
+queue<int> edge[11];
+
+void dfs(int n)
+{
+    if (check[n])
+        return;
+
+    check[n] = true;
+
+    cout << n << " ";
+
+    while(!edge[n].empty()) {
+        int tmp = edge[n].front();
+        edge[n].pop();
+        dfs(tmp);
+    }
+}
+
+int main()
+{
+    cin >> n >> start;
+
+    while (~scanf("%d %d", &a, &b)) {
+        edge[a].push(b);
+        edge[b].push(a);
+    }
+
+    dfs(start);
+
+    return 0;
+}
+#endif // m1
+
+#ifdef m2
+int n, k, a, b, cnt;
+bool check[101];
+queue<int> edge[101];
+
+void dfs(int n)
+{
+    if (check[n])
+        return;
+
+    check[n] = true;
+
+    cnt++;
+
+    while(!edge[n].empty()) {
+        int tmp = edge[n].front();
+        edge[n].pop();
+        dfs(tmp);
+    }
+}
+
+int main()
+{
+    cin >> n >> k;
+
+    for (int i = 0; i < k; i++) {
+        scanf("%d %d", &a, &b);
+        edge[a].push(b);
+        edge[b].push(a);
+    }
+
+    dfs(1);
+
+    cout << cnt - 1;
+
+    return 0;
+}
+#endif // m2
+
+#ifdef m3 // 안전 
+int n, arr[100][100], brr[100][100];
+
+int rain(int);
+void dfs(int, int);
+
+int main()
+{
+    int min = 100, max = 1, output = 0;
+    cin >> n;
+
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++) {
+            scanf("%d", arr[i] + j);
+            max = max > arr[i][j] ? max : arr[i][j];
+            min = min < arr[i][j] ? min : arr[i][j];
+        }
+
+    for (int i = min; i <= max; i++) {
+        int tmp = rain(i);
+        output = tmp > output ? tmp : output;;
+    }
+
+    cout << output;
+
+    return 0;
+}
+
+int rain(int key)
+{
+    int cnt = 0;
+
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            brr[i][j] = arr[i][j] > key ? 0 : 1;
+
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            if (brr[i][j] == 0) {
+                cnt++;
+                dfs(i, j);
+            }
+
+    return cnt;
+}
+
+void dfs(int x, int y)
+{
+    if (x < 0 || x >= n || y < 0 || y >= n)
+        return;
+
+    if (brr[x][y] == 1)
+        return;
+
+    brr[x][y]++;
+
+    dfs(x - 1, y);
+    dfs(x + 1, y);
+    dfs(x, y - 1);
+    dfs(x, y + 1);
+
+    return;
+}
+#endif // m3

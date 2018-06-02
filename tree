@@ -1,0 +1,570 @@
+#include <bits/stdc++.h>
+#define FOR(N) for(int i = 0; i < N; i++)
+
+#define m7
+
+using namespace std;
+
+#ifdef m1
+struct Node
+{
+    int right, left, row;
+
+    Node () {;}
+    Node (int a, int b)
+    {
+        left = a;
+        right = b;
+    }
+};
+int cnt = 0, depth = 0;
+vector<int> line;
+Node tree[1001];
+pair<int,int> level[1001];
+
+
+void input();
+void inorder(int, int);
+int log2(int);
+void renew(int);
+int width(int n)
+{
+    return tree[level[n].second].row - tree[level[n].first].row;
+}
+
+int main()
+{
+    int n, max = 1;
+
+    cin >> n;
+
+    for (int i = 0; i < n; i++)
+        input();
+
+    inorder(1, 1);
+
+    for (int i = 0; i < (signed) line.size(); i++)
+        tree[line[i]].row = i;
+
+    for (int i = 2; i <= depth; i++)
+        if (width(i) > width(max))
+            max = i;
+
+    printf("%d %d", max, width(max) + 1);
+
+    return 0;
+}
+
+void input()
+{
+    int a, b, c;
+
+    scanf("%d %d %d", &a, &b, &c);
+
+    Node temp(b, c);
+
+    tree[a] = temp;
+
+    return;
+}
+
+void inorder(int n, int hi)
+{
+    renew(hi);
+
+    pair<int,int> temp = level[hi];
+    if (temp.first == 0)
+        temp.first = n;
+    if (temp.first > n)
+        temp.first = n;
+    if (temp.second < n)
+        temp.second = n;
+    level[hi] = temp;
+
+    if (tree[n].left != -1)
+        inorder(tree[n].left, hi + 1);
+
+    line.push_back(n);
+
+    if (tree[n].right != -1)
+        inorder(tree[n].right, hi + 1);
+}
+
+int log2(int n)
+{
+    int i;
+    for (i = 0; n > 0; i++)
+        n /= 2;
+    return i - 1;
+}
+
+void renew(int n)
+{
+    if (n > depth)
+        depth = n;
+}
+#endif // m1
+
+#ifdef m2
+int preIndex = 0;
+char in[100], pre[100], tree[1024];
+queue<char> treeq;
+
+int whereIs(char);
+void makeTree(int, int, int, int);
+
+int main()
+{
+    cin >> in >> pre;
+
+    makeTree(0, 0, strlen(pre), 1);
+
+    return 0;
+}
+
+void makeTree(int preIdx, int start, int end, int idx)
+{
+    if (start >= end)
+        return;
+
+    int i = whereIs(pre[preIdx]);
+
+    tree[idx] = pre[preIdx];
+
+    makeTree(preIdx + 1, start, i, idx * 2);
+    makeTree(preIdx + 1 + i - start, i, end, idx * 2 + 1);
+}
+
+int whereIs(char c)
+{
+    for (int i = 0; i < (signed) strlen(in); i++)
+        if (in[i] == c)
+            return i;
+
+    return -1;
+}
+#endif // m2
+
+#ifdef m3
+int now = 0;
+char tree[101];
+string pre, in;
+
+int whereIs(char, int, int);
+void makeTree(int, int, int);
+void postorder(int);
+
+int main()
+{
+    cin >> in >> pre;
+
+    makeTree(0, pre.size() - 1, 1);
+
+    postorder(1);
+
+    return 0;
+}
+
+void makeTree(int s, int e, int idx)
+{
+    if (s > e)
+        return;
+
+    tree[idx] = pre[now++];
+
+    int place = whereIs(tree[idx], s, e);
+
+    if (place != -1) {
+        makeTree(s, place - 1, 2*idx);
+        makeTree(place + 1, e, 2*idx + 1);
+    }
+}
+
+int whereIs(char c, int s, int e)
+{
+    for (int i = s; i <= e; i++)
+        if (in[i] == c)
+            return i;
+
+    return -1;
+}
+
+void postorder(int n)
+{
+    if (tree[n] == 0)
+        return;
+
+    postorder(2*n);
+    postorder(2*n + 1);
+    printf("%c", tree[n]);
+}
+#endif // m3
+
+#ifdef m4
+struct Coord {
+    int x, y, depth;
+
+    Coord(void) {}
+
+    Coord(int x, int y) {
+        this->x = x;
+        this->y = y;
+        depth = 0;
+    }
+
+    Coord(int x, int y, int d) {
+        this->x = x;
+        this->y = y;
+        depth = d;
+    }
+
+    void renew(int a, int b, int c) {
+        x = a;
+        y = b;
+        depth = c;
+    }
+
+    bool operator<(const Coord& rhs) const {
+        return this->depth > rhs.depth;
+    }
+};
+
+int c, r;
+int arr[1000][1000];
+int a[2][4] = {
+    {-1, 1, 0, 0},
+    {0, 0, -1, 1},
+};
+
+Coord dfs(int, int, int);
+Coord max(Coord*);
+bool isEnd(int, int, int);
+bool isLeaf(int, int, int);
+
+int main()
+{
+    int max = 0;
+
+    scanf("%d %d", &c, &r);
+
+    for (int i = 0; i < r; i++) {
+        char brr[1001];
+        scanf("%s", brr);
+        for (int j = 0; j < c; j++)
+            if (brr[j] == '#')
+                arr[i][j] = 2;
+    }
+
+    for (int i = 0; i < r; i++)
+        for (int j = 0; j < c; j++) {
+            Coord tmp1(i, j), tmp2(i, j);
+            tmp1 = dfs(i, j, 0);
+            tmp2 = dfs(tmp1.x, tmp1.y, 1);
+            max = tmp2.depth > max ? tmp2.depth : max;
+        }
+     printf("Maximum rope length is %d.", max);
+
+    return 0;
+}
+
+Coord dfs(int x, int y, const int k)
+{
+    Coord tmp(0, 0);
+
+    if (isEnd(x, y, k))
+        return tmp;
+
+    arr[x][y]++;
+
+    if (isLeaf(x, y, k)) {
+        tmp.renew(x, y, 0);
+        return tmp;
+    }
+
+    Coord crr[4];
+
+    for (int i = 0; i < 4; i++)
+        crr[i] = dfs(x + a[0][i], y + a[1][i], k);
+
+    return max(crr);
+}
+
+Coord max(Coord* arr)
+{
+    sort(arr, arr + 4);
+    arr->depth++;
+    return *arr;
+}
+
+bool isEnd(int x, int y, int k)
+{
+    if (x < 0 || y < 0 || x >= r || y >= c)
+        return true;
+    if (arr[x][y] != k)
+        return true;
+    else
+        return false;
+}
+
+bool isLeaf(int x, int y, int k)
+{
+    return isEnd(x - 1, y, k) && isEnd(x + 1, y, k) && isEnd(x, y - 1, k) && isEnd(x, y + 1, k);
+}
+#endif // m4
+
+#ifdef m5 // same problem
+int r, c, longest;
+int arr[1000][1000];
+int in[1000][1000];
+int one[1000][1000];
+vector<pair<int, int> > leaf, junction;
+
+void dfs(int, int, int, int);
+bool isEnd(int ,int);
+bool isLeaf(int, int);
+bool isJunction(int, int);
+int max(int, int, int);
+
+int main()
+{
+    scanf("%d %d", &c, &r);
+
+    for (int i = 0; i < r; i++) {
+        char brr[1001];
+        scanf("%s", brr);
+        for (int j = 0; j < c; j++)
+            if (brr[j] == '#')
+                arr[i][j] = 1;
+    }
+
+    for (int i = 0; i < r; i++)
+        for (int j = 0; j < c; j++)
+            if (isLeaf(i, j))
+                dfs(i, j, 0, -1);
+
+    printf("Maximum rope length is %d.", longest);
+
+    return 0;
+}
+
+void dfs(int x, int y, int inLong, int oneLong)
+{
+    oneLong++;
+
+    if (isEnd(x, y))
+        return;
+
+    if (one[x][y] != 0) {
+        inLong = max(in[x][y], inLong, one[x][y] + oneLong - 1);
+        oneLong = max(oneLong, one[x][y], 0);
+        printf("현재 위치 : (%2d, %2d), 내부 : %2d, 확장 : %2d\n", x, y, inLong, oneLong);
+    }
+
+    if (isJunction(x, y)) {
+        in[x][y] = inLong;
+        one[x][y] = oneLong;
+        return;
+    }
+
+    arr[x][y] = 1;
+
+    if (isEnd(x - 1, y) && isEnd(x + 1, y) && isEnd(x, y - 1) && isEnd(x, y + 1)) {
+        longest = max(longest, inLong, oneLong);
+        return;
+    }
+
+    dfs(x - 1, y, inLong, oneLong);
+    dfs(x + 1, y, inLong, oneLong);
+    dfs(x, y - 1, inLong, oneLong);
+    dfs(x, y + 1, inLong, oneLong);
+}
+
+bool isEnd(int x, int y)
+{
+    if (x < 0 || y < 0 || x >= r || y >= c)
+        return true;
+    if (arr[x][y] == 1)
+        return true;
+    else
+        return false;
+}
+
+bool isLeaf(int x, int y)
+{
+    if (isEnd(x, y))
+        return false;
+
+    int cnt = 0, a[2][4] = {{-1, 1, 0, 0}, {0, 0, -1, 1}};
+    for (int i = 0; i < 4; i++)
+        if (isEnd(x + a[0][i], y + a[1][i]))
+            cnt++;
+
+    if (cnt == 3)
+        return true;
+    else
+        return false;
+}
+
+bool isJunction(int x, int y)
+{
+    if (isEnd(x, y))
+        return false;
+
+    int cnt = 0, a[2][4] = {{-1, 1, 0, 0}, {0, 0, -1, 1}};
+    for (int i = 0; i < 4; i++)
+        if (isEnd(x + a[0][i], y + a[1][i]))
+            cnt++;
+
+    if (cnt == 1 || cnt == 2)
+        return true;
+    else
+        return false;
+}
+
+int max(int a, int b, int c)
+{
+    int d = a;
+    if (d < b)
+        d = b;
+    if (d < c)
+        d = c;
+
+    return d;
+}
+#endif // m5
+
+#ifdef m6
+queue<int> ob[10];
+
+void recur(int);
+void print(int);
+
+int main()
+{
+    int n;
+    cin >> n;
+    recur(n);
+
+    for (int i = n; i > 0; i--)
+        print(i);
+
+    return 0;
+}
+
+void recur(int n)
+{
+    if (n < 1)
+        return;
+
+    recur(n - 1);
+    int tmp;
+    scanf("%d", &tmp);
+    ob[n].push(tmp);
+    recur(n-1);
+
+}
+
+void print(int n)
+{
+    while(!ob[n].empty()) {
+        int tmp = ob[n].front();
+        ob[n].pop();
+        printf("%d ", tmp);
+    }
+    printf("\n");
+
+    return;
+}
+#endif // m6
+
+#ifdef m7 // morse 부호 해석 // DP에 문제가 있는 
+int morse[26] = {2, 4, 4, 3, 1, 4, 3, 4, 2, 4, 3, 4, 2, 2, 3, 4, 4, 3, 3, 1, 3, 4, 3, 4, 4, 4}, d[10000];
+char str[10001];
+
+bool doesMatch (int, char*);
+
+struct Node {
+    int value;
+    Node* child[26];
+    Node() : value(0), child{0,} {}
+};
+
+struct Trie {
+    Node root;
+
+    void addWord(char* str) {
+        Node* word = &root;
+
+        while(*str != 0) {
+            if (word->child[*str - 'A'] == NULL)
+                word->child[*str - 'A'] = new Node();
+
+            word = word->child[*str - 'A'];
+
+            str++;
+        }
+        word->value = 1;
+
+        return;
+    }
+
+    int dfs(Node* cur, char* sentence) {
+        if (d[sentence - str])
+            return d[sentence - str];
+
+        if (*sentence == 0)
+            return cur->value;
+
+        int cnt = 0;
+
+        if (cur->value == 1)
+            cnt = dfs(&root, sentence);
+
+        for (int i = 0; i < 26; i++) {
+            if (!doesMatch(i, sentence) || cur->child[i] == 0)
+                continue;
+
+            cnt += dfs(cur->child[i], sentence + morse[i]);
+        }
+
+        if (cur->value)
+            d[sentence - str] = cnt;
+
+        return cnt;
+    }
+};
+
+int main()
+{
+    int nInMain;
+    scanf("%d", &nInMain);
+    for (int nobodyKnowsThisVariable = 0; nobodyKnowsThisVariable < nInMain; nobodyKnowsThisVariable++) {
+
+        memset(d, 0, 10000);
+        Trie trie;
+
+        scanf("%s", str);
+
+        int n;
+        scanf("%d", &n);
+
+        for (int i = 0; i < n; i++) {
+            char word[21];
+            scanf("%s", word);
+            trie.addWord(word);
+        }
+
+        printf("%d", trie.dfs(&trie.root, str));
+    }
+
+    return 0;
+}
+
+bool doesMatch(int n, char* str)
+{
+    char chr[26][5] = {
+        ".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---", "-.-", ".-..", "--", "-.", "---", ".--.", "--.-", ".-.", "...", "-", "..-", "...-", ".--", "-..-", "-.--", "--.."};
+
+    return strncmp(chr[n], str, strlen(chr[n])) == 0;
+}
+#endif // m7

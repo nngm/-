@@ -1,0 +1,62 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+bool check[100];
+vector<int> edge[100];
+queue<int> outPut;
+
+bool im(int*, int);
+
+int main()
+{
+    int n, a, b;
+    scanf("%d", &n);
+
+    while (~scanf("%d %d", &a, &b))
+        edge[a - 1].push_back(b - 1);
+
+    for (int j = 0; j < n; j++) {
+
+        int indegree[100] = {0, };
+        for (int i = 0; i < n; i++)
+            for (int e : edge[i])
+                indegree[e]++;
+
+        if (im(indegree, n)) {
+            printf("impossible");
+            return 0;
+        }
+
+        int v;
+        for (int i = 0; i < n; i++)
+            if (indegree[i] == 0 && !check[i]) {
+                v = i;
+                break;
+            }
+
+        outPut.push(v);
+        check[v] = true;
+        while (!edge[v].empty())
+            edge[v].pop_back();
+    }
+
+    while (!outPut.empty()) {
+        int v = outPut.front();
+        outPut.pop();
+        printf("%d ", v + 1);
+    }
+
+    return 0;
+}
+
+bool im(int* arr, int n)
+{
+    for (int i = 0; i < n; i++)
+        if (check[i])
+            continue;
+        else if (arr[i] == 0)
+            return false;
+
+    return true;
+}

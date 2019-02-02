@@ -1,36 +1,27 @@
-#include <bits/stdc++.h>
-#define ll long long
-
-using namespace std;
+#include <stdio.h>
 
 int fen[1000001];
 
 int find(int);
+void update(int, int);
 
 int main()
 {
-    int n, m, k, arr[1000001];
-    scanf("%d%d%d", &n, &m, &k);
-    for (int i = 1; i <= n; i++)
+    int m, k, arr[1000001];
+    scanf("%d%d%d", fen, &m, &k);
+
+    for (int i = 1; i <= *fen; i++)
         scanf("%d", arr + i);
 
-    for (int i = 1; i <= n; i++) {
-        int idx = i;
-        while (idx <= n) {
-            fen[idx] += arr[i];
-            idx += idx & -idx;
-        }
-    }
+    for (int i = 1; i <= *fen; i++)
+        update(i, arr[i]);
 
     for (int i = 0; i < m + k; i++) {
         int a, b, c;
-        scanf("%d%d%d", &a, &b, &c);  // a : 1 - update, a : 2 - sum
+        scanf("%d%d%d", &a, &b, &c);
         if (a - 2) {
             int idx = b;
-            while (idx <= n) {
-                fen[idx] += c - arr[b];
-                idx += idx & -idx;
-            }
+            update(b, c - arr[b]);
             arr[b] = c;
         }
         else {
@@ -41,10 +32,18 @@ int main()
     return 0;
 }
 
-int find(int idx) // sum from 1 to idx
+int find(int idx)   // sum from 1 to idx
 {
     if (idx)
         return find(idx - (idx & -idx)) + fen[idx];
     else
         return 0;
+}
+
+void update(int idx, int n)
+{
+    while (idx <= *fen) {
+        fen[idx] += n;
+        idx += idx & -idx;
+    }
 }

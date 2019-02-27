@@ -1,0 +1,51 @@
+#include <bits/stdc++.h>
+
+struct Node {
+    int check;
+    Node* chd[10];
+    Node() : check(0), chd{0, } {}
+    ~Node() {
+        for (int i = 0; i < 10; i++)
+            if (chd[i])
+                delete chd[i];
+    }
+    int add(char* str) {
+        if (!str[0])
+            return 0;
+
+        int i = *str-'0';
+
+        if (chd[i] == 0)
+            chd[i] = new Node();
+        else
+            if (!str[1] || check)
+                return 1;
+
+        if (!str[1])
+            check = 1;
+
+        return chd[i]->add(++str);
+    }
+};
+
+using namespace std;
+
+int main()
+{
+    int tc;
+    scanf("%d", &tc);
+    for (int tt = 0; tt < tc; tt++) {
+        int n, c = 0;
+        char str[11];
+        Node root;
+
+        scanf("%d", &n);
+        for (int i = 0; i < n; i++) {
+            scanf("%s", str);
+            c |= root.add(str);
+        }
+        printf("%s\n", c?"NO":"YES");
+    }
+
+	return 0;
+}

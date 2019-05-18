@@ -1,0 +1,9 @@
+int find(int p)
+{
+    return (p == pa[p]) ? p : pa[p] = find(pa[p]);
+}
+
+void Union(int p, int q)
+{
+    pa[find(p)] = find(q);
+}

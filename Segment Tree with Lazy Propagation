@@ -1,0 +1,61 @@
+struct Tree {
+    int n, seg[4000001], reserve[4000001], from, to;
+    Tree(int n): n(n), seg{}, reserve{} {}
+
+    void init(int* arr) {
+        init(1, 0, n - 1, arr);
+    }
+
+    void update(int from, int to, int addValue) {
+        this->from = from;
+        this->to = to;
+        update(1, 1, n, addValue);
+    }
+
+    int sum(int from, int to) {
+        this->from = from;
+        this->to = to;
+        return sum(1, 1, n);
+    }
+
+    int init(int node, int start, int end, int* arr) {
+        if (start == end)
+            return seg[node] = arr[end];
+
+        int mid = (start + end) / 2;
+
+        return seg[node] = init(2*node, start, mid, arr) + init(2*node + 1, mid + 1, end, arr);
+    }
+
+    void update(int node, int start, int end, int addValue) {
+        if (end < from || to < start)
+            return;
+
+        int mid = (start + end) / 2;
+
+        if (from <= start && end <= to)
+            reserve[node] += addValue;
+
+        else
+            update(2*node, start, mid, addValue),
+            update(2*node + 1, mid + 1, end, addValue),
+            seg[node] += addValue * (std::min(to, end) - std::max(from, start) + 1);
+    }
+
+    int sum(int node, int start, int end) {
+        if (end < from || to < start)
+            return 0;
+
+        if (from <= start && end <= to)
+            return seg[node] + reserve[node] * (end - start + 1);
+
+        int mid = (start + end) / 2;
+
+        seg[node] += reserve[node] * (end - start + 1);
+        reserve[2*node] += reserve[node];
+        reserve[2*node + 1] += reserve[node];
+        reserve[node] = 0;
+
+        return sum(2*node, start, mid) + sum(2*node + 1, mid + 1, end);
+    }
+};

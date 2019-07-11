@@ -1,0 +1,44 @@
+#include <bits/stdc++.h>
+#define ll long long
+#define pii std::pair<int, int>
+
+int n, arr[1000000], pa[1000000];
+
+void rec(int);
+
+int main()
+{
+    std::vector<pii> dp;
+
+    scanf("%d", &n);
+    for (int i = 0; i < n; i++) {
+        scanf("%d", arr + i);
+
+        auto itr = std::lower_bound(dp.begin(), dp.end(), pii(arr[i], 0));
+
+        if (itr == dp.begin())
+            pa[i] = -1;
+        else
+            pa[i] = (itr - 1)->second;
+
+        if (itr == dp.end())
+            dp.push_back({arr[i], i});
+        else
+            *itr = {arr[i], i};
+    }
+
+    printf("%d\n", dp.size());
+    prt(dp.back().second);
+
+    return 0;
+}
+
+void prt(int n)
+{
+    if (n == -1)
+        return;
+
+    prt(pa[n]);
+
+    printf("%d ", arr[n]);
+}
